@@ -24,8 +24,8 @@ function [A_1,A_1c,A_1a,A_1ac,A_2,A_2c,A_2a,A_2ac,l,l_c]=tenseg_equilibrium_matr
 % element length
 H=N*C';                     % element's direction matrix
 l=sqrt(diag(H'*H));         % elements' length
-l_c=pinv(S')*l;            % elements' length in group
-
+% l_c=pinv(S')*l;            % elements' length in group
+l_c=S*l;            % elements' length in group
 Cell_H=mat2cell(H,3,ones(1,size(H,2)));          % transfer matrix H into a cell: Cell_H
 
 A_1=kron(C',eye(3))*blkdiag(Cell_H{:});     % equilibrium matrix
