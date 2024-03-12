@@ -196,4 +196,4 @@ end
 name=['CTS_cable_dome_trajectory'];
 % % tenseg_video(n_t,C_b,C_s,[],min(substep,50),name,savevideo,R3Ddata);
 % tenseg_video_slack(n_t,C_b,C_s,l0_ct,index_s,[],[],[],min(substep,50),name,savevideo,material{2})
-tenseg_video(n_t,C_b,C_s,[],50,name,savevideo,material{2});
+tenseg_video(n_t,C_b,C_s,[],15,name,savevideo,material{2});

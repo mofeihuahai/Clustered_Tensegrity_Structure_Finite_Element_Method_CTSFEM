@@ -222,6 +222,8 @@ num_plt=1:4;
 %     'Order of Vibration Mode','Frequency (Hz)',num_plt,0.2,saveimg);
 plot_mode_RDT(K_mode_na,k_a_sort,N,R,E_na,C,index_b,S,l,'tangent stiffness matrix',...
     'Order of Eigenvalue','Eigenvalue of Stiffness (N/m)','N/m',num_plt,0.5,saveimg,[45,30]);
+% fig=gcf;
+% fig.Position(1:4)=[100,100,[600,350]];   %change fig size
   end
     %% reduced order tangent stiffness-general method dqa_a=0
   if 1                                    % reduced order-general method
@@ -249,6 +251,8 @@ num_plt=1:4;
 %     'Order of Vibration Mode','Frequency (Hz)',num_plt,0.2,saveimg);
 plot_mode_RDT(K_mode_na,k_p_sort,N,R,E_na,C,index_b,S,l,'tangent stiffness matrix',...
     'Order of Eigenvalue','Eigenvalue of Stiffness (N/m)','N/m',num_plt,0.5,saveimg,[45,30]);
+% fig=gcf;
+% fig.Position(1:4)=[100,100,[650,350]];   %change fig size
 end
 %% tangent stiffness of Clustered Tensegrity CTS
 if 0

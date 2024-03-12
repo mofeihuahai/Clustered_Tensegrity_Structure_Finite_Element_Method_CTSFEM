@@ -178,10 +178,11 @@ semilogy(4:9,k_sort1(4:end),'-or',...
 set(gca,'fontsize',15,'LineWidth',2);
 xlabel('Order of Stiffness','fontsize',18,'Interpreter','tex');
 ylabel('Eigenvalue (N/m)','fontsize',18);
-legend('PD-CTS','CTS');
+legend('PD-CTS','CTS','Location','southeast');
 grid on;
 fig=gcf;
-fig.Position(3:4)=[800,350];   %change fig size
+% fig.Position(3:4)=[800,350];   %change fig size
+fig.Position(3:4)=[900,600];   %change fig size
 end
 
 S*diag(l)*S'-diag(S*l)
