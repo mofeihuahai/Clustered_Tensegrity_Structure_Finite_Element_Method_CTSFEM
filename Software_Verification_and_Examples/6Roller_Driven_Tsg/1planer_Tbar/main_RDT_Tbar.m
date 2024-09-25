@@ -182,7 +182,7 @@ legend('PD-CTS','CTS','Location','southeast');
 grid on;
 fig=gcf;
 % fig.Position(3:4)=[800,350];   %change fig size
-fig.Position(3:4)=[900,600];   %change fig size
+fig.Position(1:4)=[100,100,650,550];   %change fig size
 end
 
 S*diag(l)*S'-diag(S*l)
@@ -201,6 +201,8 @@ V_mode_sort=V_mode(:,e_nb);
 num_plt=1:9;
 plot_mode_RDT_sa(V_mode_sort(1:8,:),V_mode_sort(9,:),omega_sort,N,R,E_na,C,1:2,S,l,'tangent stiffness matrix',...
     'Order of Vibration Mode','Frequency (Hz)','Hz',num_plt,0.2,saveimg,2);
+fig=gcf;
+fig.Position(1:4)=[100,100,[650,350]];   %change fig size
 % plot sliding distance
 figure
 bar(4:9,V_mode_sort(9,4:9))
