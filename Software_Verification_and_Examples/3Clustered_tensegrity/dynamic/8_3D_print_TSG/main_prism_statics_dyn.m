@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%A Clustered Cable Net(deployable)%%%%%%%%
+%%%%%%A prism Tensegrity%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % /* This Source Code Form is subject to the terms of the Mozilla Public
 % * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -45,12 +45,18 @@ period=0.5;             %period of seismic
 
 %% N C of the structure
 % Manually specify node positions of double layer prism.
-% N=[0 0 0;1 1 0;2 0 0;1 -1 0]';    
-N=[0 0 0;1 2 0;2 0 0;1 -2 0]';    
+R=1; h=1; p=3;        % radius; height; number of edge
+beta=180*(0.5-1/p); 	% rotation angle
+for i=1:p               % nodal coordinate matrix N
+    N(:,i)=R*[cos(2*pi*(i-1)/p),sin(2*pi*(i-1)/p),0];
+end
+for i=p+1:2*p
+    N(:,i)=[R*cos(2*pi*(i-1)/p+beta*pi/180),R*sin(2*pi*(i-1)/p+beta*pi/180),h];
+end
 
 % Manually specify connectivity indices.
-C_s_in = [1 2;2 3;3 4;4 1];  % This is indicating that string connection
-C_b_in = [1 3;2 4];  % Similarly, this is saying bar 1 connects node 1 to node 2,
+C_s_in = [4 5;5 6;6 4;1 4;2 5;3 6];  % This is indicating that string connection
+C_b_in = [1 5;2 6;3 4];  % Similarly, this is saying bar 1 connects node 1 to node 2,
 
 % Convert the above matrices into full connectivity matrices.
 C_b = tenseg_ind2C(C_b_in,N);%%
@@ -60,21 +66,22 @@ C=[C_b;C_s];
 
 % Plot the structure to make sure it looks right
 tenseg_plot(N,C_b,C_s);
-title('Clustered D-bar in edges and nodes');
+title('prism');
+
 
 %% Boundary constraints
-pinned_X=[]; pinned_Y=[]; pinned_Z=(1:nn)';
+pinned_X=[1:p]'; pinned_Y=[1:p]'; pinned_Z=(1:p)';
 [Ia,Ib,a,b]=tenseg_boundary(pinned_X,pinned_Y,pinned_Z,nn);
 
 %% Group/Clustered information 
 %generate group index
 % gr=[];
-gr={[3,4]};     % number of elements in one group
+gr={};     % number of elements in one group
 Gp=tenseg_str_gp(gr,C);    %generate group matrix
 % S=eye(ne);                  % no clustering matrix
 S=Gp';                      % clustering matrix as group matrix
 
-tenseg_plot_CTS(N,C,[1,2],S);
+tenseg_plot_CTS(N,C,[1:p],S);
 %% self-stress design
 %Calculate equilibrium matrix and member length
 [A_1,A_1c,A_1a,A_1ac,A_2,A_2c,A_2a,A_2ac,l,l_c]=tenseg_equilibrium_matrix_CTS(N,C,S,Ia);
@@ -135,9 +142,9 @@ plot_mode_CTS(V_mode,omega,N,Ia,C,[1,2],S,l,'natrual vibration',...
 % calculate external force and 
 ind_w=[];w=[];
 ind_dnb=[]; dnb0=[];
-ind_dl0_c=[3,4,5];
+ind_dl0_c=[1:p];
 % dl0_c=[-0.8,0.2,0.2];
-dl0_c=[-2,0.5,0.5];
+dl0_c=[l(ind_dl0_c)*0.2];
 % [w_t,dnb_t,l0_ct,Ia_new,Ib_new]=tenseg_load_prestress(substep,ind_w,w,ind_dnb,dnb0,ind_dl0_c,dl0_c,l0_c,b,gravity,[0;9.8;0],C,mass);
 
 [w_t,dnb_t,l0_ct,Ia_new,Ib_new]=tenseg_load_prestress(substep/2,ind_w,w,ind_dnb,dnb0,ind_dl0_c,dl0_c,l0_c,b,gravity,[0;9.8;0],C,mass);
@@ -164,26 +171,26 @@ t_t=data_out1.t_out;          %member force in every step
 n_t=data_out1.n_out;          %nodal coordinate in every step
 N_out=data_out1.N_out;
 %% plot member force 
-tenseg_plot_result(1:substep,t_t([1,2,3,5,6],:),{'1','2','3-4','5','6'},{'Load step','Force (N)'},'plot_member_force.png',saveimg);
+tenseg_plot_result(1:substep,t_t([1,2,3,5,6],:),{'1','2','3','5','6'},{'Load step','Force (N)'},'plot_member_force.png',saveimg);
 grid on;
 %% Plot nodal coordinate curve X Y
-tenseg_plot_result(1:substep,0.5*(n_t([3*3-1],:)-n_t([3*4-1],:)-2),{'3Y'},{'Substep','Coordinate (m)'},'plot_coordinate.png',saveimg);
+tenseg_plot_result(1:substep,n_t([4*3-2:4*3],:),{'4X','4Y','4Z'},{'Substep','Coordinate (m)'},'plot_coordinate.png',saveimg);
 grid on;
 %% Plot configuration
 for i=round(linspace(1,substep,3))
 tenseg_plot_CTS(reshape(n_t(:,i),3,[]),C,[1,2],S);
 axis off;
 end
-tenseg_plot( reshape(n_t(:,end),3,[]),C_b,C_s,[],[],[0,90])
+tenseg_plot( reshape(n_t(:,end),3,[]),C_b,C_s,[],[],[])
 
 %% save output data
 if savedata==1
     save (['cable_net_CTS_static','.mat']);
 end
 %% make video of the static
-name=['Tbar_static2'];
+name=['prism_static2'];
 % tenseg_video(n_t,C_b,C_s,[],min(substep,50),name,savevideo,material{2})
-tenseg_video_CTS(n_t,C,[1,2],S,[],[],[],[],[],[],t_t,[],min(substep,50),tf,name,savevideo)
+tenseg_video_CTS(n_t,C,[1,2,3],S,[],[],[],[],[],[],t_t,[],min(substep,50),tf,name,savevideo)
 
 %% Step 2: dynamics:change rest length of strings
 % time step
@@ -196,7 +203,7 @@ out_tspan=interp1(tspan,tspan,0:out_dt:tf, 'nearest','extrap');  % output data t
 
 % calculate external force and 
 ind_w=[];w=[];
-ind_dl0_c=[3,4,5];dl0_c=[-2,0.5,0.5];
+ind_dl0_c=[1:p];dl0_c=[l(ind_dl0_c)*0.2];
 % ind_dl0_c=[2]; dl0_c=[-120];
 [w_t,l0_ct]=tenseg_load_prestress_CTS(tspan1,ind_w,w,'ramp',ind_dl0_c,dl0_c,l0_c,gravity,[0;0;0],C,mass);
 w_t=[w_t,w_t(:,end)*ones(1,numel(tspan)-numel(tspan1))];   % second half no change of boundary info
@@ -238,18 +245,18 @@ nd_t=data_out.nd_t;   %time history of nodal coordinate
 tenseg_plot_result(out_tspan,t_t([1:5],:),{'1','2','3','4','5'},{'Time (s)','Force (N)'},'plot_member_force.png',saveimg);
 grid on;
 %% Plot nodal coordinate curve X Y
-tenseg_plot_result(out_tspan,n_t([3*3-1],:)-n_t([3*4-1],:)-2,{'3Y'},{'Time (s)','Coordinate (m)'},'plot_coordinate.png',saveimg);
+tenseg_plot_result(out_tspan,n_t([4*3-2:4*3],:),{'4X','4Y','4Z'},{'Time (s)','Coordinate (m)'},'plot_coordinate.png',saveimg);
 grid on;
 %% Plot final configuration
 % tenseg_plot_catenary( reshape(n_t(:,end),3,[]),C_b,C_s,[],[],[0,0],[],[],l0_ct(index_s,end))
-tenseg_plot( reshape(n_t(:,end),3,[]),C_b,C_s,[],[],[0,90])
+tenseg_plot( reshape(n_t(:,end),3,[]),C_b,C_s,[],[],[])
 
 %% save output data
 if savedata==1
-    save (['cable_net_CTS_dynamic',num2str(tf),'.mat']);
+    save (['prism_dynamic',num2str(tf),'.mat']);
 end
 %% make video of the dynamic
-name=['Tbar_dynamic_CTS',num2str(tf)];
+name=['prism_dynamic',num2str(tf)];
 % tenseg_video(n_t,C_b,C_s,[],min(numel(out_tspan),50),name,savevideo,material{2})
 tenseg_video_CTS(n_t,C,[1,2],S,[],[],[],[],[],[],t_t,[],min(numel(out_tspan),50),tf,name,savevideo)
 

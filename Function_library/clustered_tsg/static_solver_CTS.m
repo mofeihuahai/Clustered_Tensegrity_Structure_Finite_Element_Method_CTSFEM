@@ -5,7 +5,7 @@ function data_out=static_solver_CTS(data)
 
 global E A l0 Ia Ib C S w ne Xb Xa dXa f_int l_int
 % minimize total energy? (1: use, 0: not use) it's time consuming
-use_energy=0;
+use_energy=1;
 
 %% input data
 C=data.C;
