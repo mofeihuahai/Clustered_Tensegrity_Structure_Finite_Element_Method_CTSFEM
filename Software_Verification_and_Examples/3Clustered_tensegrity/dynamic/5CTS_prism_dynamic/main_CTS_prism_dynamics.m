@@ -1,5 +1,5 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%A Clustered Cable Net(deployable)%%%%%%%%
+%%%%%%A Clustered Prism Tensegrity%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % /* This Source Code Form is subject to the terms of the Mozilla Public
 % * License, v. 2.0. If a copy of the MPL was not distributed with this
@@ -109,7 +109,8 @@ tenseg_plot_CTS(N,C,index_b,S);
 tenseg_plot_CTS(N,C,index_b,S,[],[],[],[],[],t,[],[min(t),max(t)]);
 %% tangent stiffness matrix
 % [Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS(Ia,C,S,q,A_1a,E_c,A_c,l_c);
-[Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS2(Ia,C,q,A_2ac,E_c,A_c,l0_c);
+% [Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS2(Ia,C,q,A_2ac,E_c,A_c,l0_c);
+[Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS3(Ia,C,S,t_c,A_2a,E_c,A_c,l0,l);
 % plot the mode shape of tangent stiffness matrix
 num_plt=1:4;
 plot_mode(K_mode,k,N,Ia,C_b,C_s,l,'tangent stiffness matrix',...
@@ -253,6 +254,3 @@ end
 name=['Tbar_dynamic_',num2str(tf)];
 % tenseg_video(n_t,C_b,C_s,[],min(numel(out_tspan),50),name,savevideo,material{2})
 tenseg_video_CTS(n_t,C,index_b,S,[],[],[],[],[],[],t_t,[],min(numel(out_tspan),50),tf,name,savevideo)
-
-%output data to tecplot
-tenseg_tecplot(C,n_t,t_t,interp1([min(radius),max(radius)],[0.2,0.8],radius));

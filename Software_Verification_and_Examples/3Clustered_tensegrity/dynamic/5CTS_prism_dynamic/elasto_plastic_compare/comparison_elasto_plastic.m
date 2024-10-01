@@ -1,4 +1,5 @@
-%%%%% this file plot the dynamic and static comparsion of T bar 
+%%%%% this file plot the dynamic and result of CTS prism in different
+%%%%% material propeties
 clc; clear all; close all;
 %% static result
 load prism_static_elasto_plastic.mat

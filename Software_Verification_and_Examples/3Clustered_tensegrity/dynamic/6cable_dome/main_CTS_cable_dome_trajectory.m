@@ -186,7 +186,8 @@ mass=S'*rho.*A.*l0;
 
 %% tangent stiffness matrix
 % [Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS(Ia,C,S,q,A_1a,E_c,A_c,l_c);
-[Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS2(Ia,C,q,A_2ac,E_c,A_c,l0_c);
+% [Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS2(Ia,C,q,A_2ac,E_c,A_c,l0_c);
+[Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS3(Ia,C,S,t_c,A_2a,E_c,A_c,l0,l);
 % plot the mode shape of tangent stiffness matrix
 num_plt=1:4;
 %% mass matrix and damping matrix
@@ -252,7 +253,7 @@ columnlegend(3, {'OHS','IHS','ITS','ODS','IDS','ORS','IRS','OB','IB'}, 'location
 grid on;
 ylim([0,230]);
 l0_gp=pinv(Gp)*l0_t;% string length in group
-tenseg_plot_result(ratio(1:90),l0_gp(:,1:90),{'OB','IB','OHS','IHS','ITS','ODS','IDS','ORS','IRS'},{'Deployment ratio','Length (m)'},'plot_member_length.png',saveimg);
+tenseg_plot_result(ratio(1:dvd_num),l0_gp(:,1:dvd_num),{'OB','IB','OHS','IHS','ITS','ODS','IDS','ORS','IRS'},{'Deployment ratio','Length (m)'},'plot_member_length.png',saveimg);
 columnlegend(3, {'OB','IB','OHS','IHS','ITS','ODS','IDS','ORS','IRS'}, 'location','southwest');
 grid on;
 %% Plot nodal coordinate curve X Y
@@ -261,8 +262,8 @@ tenseg_plot_result(1:dvd_num,n_t([3*1-2,3*2-2,3*1,3*2],:),{'1X','2X','1Z','2Z'},
 
 %% Plot final configuration
 % tenseg_plot_catenary( reshape(n_t(:,end),3,[]),C_b,C_s,[],[],[0,0],[],[],l0_ct(index_s,end))
-for i=linspace(1,numel(ratio),4)
-tenseg_plot( reshape(n_t(:,i),3,[]),C_b,C_s,[],[],[0,90]);
+for i=round(linspace(1,numel(ratio),4))
+tenseg_plot(reshape(n_t(:,i),3,[]),C_b,C_s,[],[],[0,90]);
 % axis off
 % view([0,90]);
 view([0,30]);
@@ -271,4 +272,4 @@ end
 name=['CTS_cable_dome_trajectory'];
 % % tenseg_video(n_t,C_b,C_s,[],min(substep,50),name,savevideo,R3Ddata);
 % tenseg_video_slack(n_t,C_b,C_s,l0_ct,index_s,[],[],[],min(substep,50),name,savevideo,material{2})
-tenseg_video(n_t,C_b,C_s,[],50,name,savevideo,material{2});
+tenseg_video(n_t,C_b,C_s,[],dvd_num,name,savevideo,material{2});

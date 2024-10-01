@@ -1,4 +1,4 @@
-%%%%% this file plot the dynamic and static comparsion of T bar 
+%%%%% this file plot the dynamic and static comparsion of CTS prism
 clc; clear all; close all;
 %% static result
 load prism_static.mat
@@ -91,7 +91,7 @@ grid on
 load prism_dynamic_0.5.mat
 % t_t_dyn2=t_t;
 n_t_dyn2=n_t;
-out_tspan_2=out_tspan;
+out_tspan_2=0:1e-3:0.5;
 
 % % plot member force 
 % tenseg_plot_result(out_tspan_2,t_t_dyn2([1,9,17,21,25],:),{'bar','diagonal string','bottom string','middle string','top string'},{'Time (s)','Force (N)'},'plot_member_force.png',saveimg);
@@ -121,7 +121,7 @@ grid on
 load prism_dynamic_0.05.mat
 % t_t_dyn4=t_t;
 n_t_dyn4=n_t;
-out_tspan_4=out_tspan;
+out_tspan_4=0:1e-4:0.05;
 
 % % plot member force 
 % tenseg_plot_result(out_tspan_4,t_t_dyn4([1,9,17,21,25],:),{'bar','diagonal string','bottom string','middle string','top string'},{'Time (s)','Force (N)'},'plot_member_force.png',saveimg);
@@ -136,7 +136,7 @@ grid on
 load prism_dynamic_50.mat
 % t_t_dyn6=t_t;
 n_t_dyn6=n_t;
-out_tspan_6=out_tspan;
+out_tspan_6=linspace(0,50,size(n_t,2));
 
 % % plot member force 
 % tenseg_plot_result(out_tspan_6,t_t_dyn6([1,9,17,21,25],:),{'bar','diagonal string','bottom string','middle string','top string'},{'Time (s)','Force (N)'},'plot_member_force.png',saveimg);

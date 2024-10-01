@@ -29,6 +29,6 @@ Ke_aa=A_2ac*diag(E_c.*A_c./l0_c)*A_2ac';
 Kt_aa=Kg_aa+(Ke_aa+Ke_aa')/2;       % this is to 
 [K_mode,D1] = eig(Kt_aa);         % eigenvalue of tangent stiffness matrix
 k=diag(D1);   
-
+input('please renew to tenseg_stiff_CTS3...');
 end
 

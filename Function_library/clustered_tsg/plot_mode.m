@@ -12,16 +12,19 @@ switch nargin
 end
 
 figure
-% plot(1:numel(value),value,'k-o','linewidth',1.5);
-% set(gca,'fontsize',18);
-% xlabel(xlb,'fontsize',18,'Interpreter','latex');
-% ylabel(ylb,'fontsize',18,'Interpreter','latex');
-% grid on;
-semilogy(1:numel(value),value,'k-o','linewidth',1.5); %semilogy
-set(gca,'fontsize',18);
-xlabel(xlb,'fontsize',18,'Interpreter','latex');
-ylabel(ylb,'fontsize',18,'Interpreter','latex');
-grid on;
+if min(value)<0
+    plot(1:numel(value),value,'k-o','linewidth',1.5);
+    set(gca,'fontsize',18);
+    xlabel(xlb,'fontsize',18,'Interpreter','latex');
+    ylabel(ylb,'fontsize',18,'Interpreter','latex');
+    grid on;
+else
+    semilogy(1:numel(value),value,'k-o','linewidth',1.5); %semilogy
+    set(gca,'fontsize',18);
+    xlabel(xlb,'fontsize',18,'Interpreter','latex');
+    ylabel(ylb,'fontsize',18,'Interpreter','latex');
+    grid on;
+end
 if saveimg==1
     saveas(gcf,[title,'.png']);
 end
@@ -32,8 +35,8 @@ for i=1:numel(num_plt)
     %plot buckling mode
     tenseg_plot(N+ampli*max(l)*reshape(Ia*Mode(:,num_plt(i))/norm(Mode(:,num_plt(i))),3,[]),C_b,C_s,f1,[],[],title2);
     tenseg_plot_dash(N,C_b,C_s,f1,[],[],title2);
-     axis off;
-        view(view_vec);
+    axis off;
+    view(view_vec);
     if saveimg==1
         saveas(gcf,[title,' of ',num2str(num_plt(i)),'.png']);
     end

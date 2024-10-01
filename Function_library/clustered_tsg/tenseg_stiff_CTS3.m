@@ -29,6 +29,7 @@ q=(S'*t_c)./l;
 Kg_aa=Ia'*kron(C'*diag(q)*C,eye(3))*Ia-A_2a*diag(q)*A_2a';
 Ke_aa=A_2ac*diag(E_c.*A_c./l0_c)*A_2ac';
 Kt_aa=Kg_aa+(Ke_aa+Ke_aa')/2;       % this is to 
+Kt_aa=(Kt_aa+Kt_aa')/2;       % this is to make sure Kt is symmetric
 [K_mode,D1] = eig(Kt_aa);         % eigenvalue of tangent stiffness matrix
 k=diag(D1);   
 [k_sort,I]=sort(k);

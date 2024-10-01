@@ -1,6 +1,6 @@
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%An double layer tensegrity tower with simplex%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%CTS Cable dome with different culstered number%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % /* This Source Code Form is subject to the terms of the Mozilla Public
 % * License, v. 2.0. If a copy of the MPL was not distributed with this
 % * file, You can obtain one at http://mozilla.org/MPL/2.0/.
@@ -144,7 +144,8 @@ mass=S'*rho.*A.*l0;
 % tenseg_plot(N,C_b,C_s,[],[],[],'Double layer prism',R3Ddata);
 %% tangent stiffness matrix
 % [Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS(Ia,C,S,q,A_1a,E_c,A_c,l_c);
-[Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS2(Ia,C,q,A_2ac,E_c,A_c,l0_c);
+% [Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS2(Ia,C,q,A_2ac,E_c,A_c,l0_c);
+[Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS3(Ia,C,S,t_c,A_2a,E_c,A_c,l0,l);
 % plot the mode shape of tangent stiffness matrix
 num_plt=1:3;
 if i==3
@@ -193,13 +194,3 @@ ylabel('\itf_{min}','fontsize',18); %minimal natural frequency
 %% plot member force 
 tenseg_plot_result(1:100,t_t(:,:),{'whs','nhs','nhds','wxs','nxs','wjs','njs'},{'Load step','Force (N)'},'plot_member_force.png',saveimg);
 
-%% Plot nodal coordinate curve X Y
-tenseg_plot_result(1:100,n_t([3*4-2,3*4],:),{'4X','4Z'},{'Time (s)','Coordinate (m)'},'plot_coordinate.png',saveimg);
-%% Output control target
-ind_n_ct=a;
-
-%% make video of the trajectory
-name=['CTS_cable_dome_trajectory'];
-% % tenseg_video(n_t,C_b,C_s,[],min(substep,50),name,savevideo,R3Ddata);
-% tenseg_video_slack(n_t,C_b,C_s,l0_ct,index_s,[],[],[],min(substep,50),name,savevideo,material{2})
-tenseg_video(n_t,C_b,C_s,[],50,name,savevideo,material{2});
