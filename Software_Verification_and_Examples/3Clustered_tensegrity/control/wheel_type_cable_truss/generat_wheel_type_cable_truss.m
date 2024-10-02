@@ -49,6 +49,7 @@ end
 
 
 %% connectivity matrix of a unit
+m=p;
 C_b_in_unit = [[1:m]',[m+1:2*m]'];  % Bar 
 % Convert above index notation into actual connectivity matrices
 C_b2unit = tenseg_ind2C(C_b_in_unit,N);
