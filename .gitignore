@@ -13,3 +13,6 @@
 
 # Ignore folder content
 **/data_temp
+
+# not ignore videos folder
+!Software_Verification_and_Examples/3Clustered_tensegrity/2_dynamic/5CTS_prism_dynamic/** 

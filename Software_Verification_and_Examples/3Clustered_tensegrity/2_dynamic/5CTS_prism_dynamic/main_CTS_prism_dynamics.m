@@ -248,7 +248,7 @@ tenseg_plot( reshape(n_t(:,end),3,[]),C_b,C_s,[],[],[0,90]);
 
 %% save output data
 if savedata==1
-    save (['prism_dynamic_',num2str(tf),'.mat'],'n_t');
+    save (['prism_dynamic_',num2str(tf),'.mat'],'n_t','t_t');
 end
 %% make video of the dynamic
 name=['Tbar_dynamic_',num2str(tf)];
