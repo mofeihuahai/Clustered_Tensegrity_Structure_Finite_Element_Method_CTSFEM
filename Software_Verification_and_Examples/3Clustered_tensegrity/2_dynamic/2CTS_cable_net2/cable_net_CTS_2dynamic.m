@@ -266,7 +266,4 @@ name=['cable_net_CTS'];
 % tenseg_video(n_t,C_b,C_s,[],min(substep,50),name,savevideo,R3Ddata);
 % tenseg_video_slack(n_t,C_b,C_s,l0_ct,index_s,[],[],[],min(substep,50),name,savevideo,material{2})
 tenseg_video(n_t,C_b,C_s,[],min(numel(out_tspan),50),name,savevideo,material{2})
-tenseg_video_CTS(n_t,C,[],S,[],[],[],[],[],[],t_t,[],min(numel(out_tspan),50),tf,name,savevideo)
-
-%output data to tecplot
-tenseg_tecplot(C,n_t,t_t,interp1([min(radius),max(radius)],[0.2,0.8],radius));
+tenseg_video_CTS(n_t,C,[],S,[],[],[],[],[],[],t_t,[],min(numel(out_tspan),50),tf,[name,'_color'],savevideo)
