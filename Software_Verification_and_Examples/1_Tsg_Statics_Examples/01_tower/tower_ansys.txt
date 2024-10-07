@@ -23,7 +23,7 @@ mp,alpx,1,6.5e-6	!coefficient of linear expansion
 !specify string material property 
  mp,ex,2,eg	!Youngs modulus 
  mp,prxy,2,0.3	!Poisson ratio
- mp,dens,2,393500	!Material density
+ mp,dens,2,7870	!Material density
 mp,alpx,2,6.5e-6	!coefficient of linear expansion
 
 K,1,10.000000000000000,0.000000000000000,0.000000000000000  !nodal coordinate

@@ -111,8 +111,9 @@ ss.FaceColor=	'#EDB120';  %yellow
 ss.FaceAlpha=0.8;
 end
 
-if 1    %plot cable dome
+if 0    %plot cable dome
 tenseg_plot(N2,C_b2,C_s2,fig_handle);
+
 end
 
 if 1    %plot plate
@@ -130,11 +131,11 @@ end
 return
 
 %%
+
+
+
+
 name=['plate_trajectory'];
 % % tenseg_video(n_t,C_b,C_s,[],min(substep,50),name,savevideo,R3Ddata);
 % tenseg_video_slack(n_t,C_b,C_s,l0_ct,index_s,[],[],[],min(substep,50),name,savevideo,material{2})
 tenseg_video(n_t,C_b,C_s,[],50,name,savevideo,material{2});
-
-
-
-

@@ -30,7 +30,7 @@ Gp1=[];
 %% method 2  rearrange Gp with information in gr as priority
 num=[];      %give index for group string number
 for i=1:size(gr,1)
-    num=[num;gr{i}];
+    num=[num;reshape(gr{i},[],1)];
 end
 
 if ~isempty(gr)

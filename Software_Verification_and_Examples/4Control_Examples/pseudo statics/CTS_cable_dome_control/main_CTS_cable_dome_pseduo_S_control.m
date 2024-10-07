@@ -47,7 +47,7 @@ period=0.5;             %period of seismic
 % Manually specify node positions of double layer prism.
 R=50;          %radius
 p=12;          %complexity for cable dome
-m=6;   %number of circle of the vertical bars
+m=2;   %number of circle of the vertical bars
 % for m=[2,3,4]
 h=0.15*2*R;   %hight of the dome
 beta=30*pi/180*ones(m,1);    %all angle of diagonal string

@@ -28,7 +28,7 @@ c_s=0.1;           % coefficient of safty of strings 0.3
 substep=10;                                     %ºÉÔØ×Ó²½
 lumped=0;               % use lumped matrix 1-yes,0-no
 saveimg=0;              % save image or not (1) yes (0)no
-savedata=1;             % save data or not (1) yes (0)no
+savedata=0;             % save data or not (1) yes (0)no
 savevideo=1;            % make video(1) or not(0)
 gravity=0;              % consider gravity 1 for yes, 0 for no
 % move_ground=0;          % for earthquake, use pinned nodes motion(1) or add inertia force in free node(0) 
@@ -97,8 +97,8 @@ mass=S'*rho.*A.*l0;
 
 %% tangent stiffness matrix
 % [Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS(Ia,C,S,q,A_1a,E_c,A_c,l_c);
-[Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS2(Ia,C,q,A_2ac,E_c,A_c,l0_c);
-% [Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS3(Ia,C,S,t_c,A_2a,E_c,A_c,l0,l);
+% [Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS2(Ia,C,q,A_2ac,E_c,A_c,l0_c);
+[Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS3(Ia,C,S,t_c,A_2a,E_c,A_c,l0,l);
 
 % plot the mode shape of tangent stiffness matrix
 num_plt=1:4;
@@ -166,6 +166,3 @@ name=['CTS_Dbar',material{1},'_slack_',num2str(material{2})];
 % % tenseg_video(n_t,C_b,C_s,[],min(substep,50),name,savevideo,R3Ddata);
 % tenseg_video_slack(n_t,C_b,C_s,l0_ct,index_s,[],[],[],min(substep,50),name,savevideo,material{2})
 tenseg_video(n_t,C_b,C_s,[],min(substep,50),name,savevideo,material{2})
-
-%output data to tecplot
-tenseg_tecplot(C,n_t,t_t,interp1([min(radius),max(radius)],[0.2,0.8],radius));

@@ -461,5 +461,3 @@ name=['cable_net_CTS'];
 % tenseg_video_slack(n_t,C_b,C_s,l0_ct,index_s,[],[],[],min(substep,50),name,savevideo,material{2})
 tenseg_video(n_t2,C_b,C_s,[],min(substep,50),name,savevideo,material{2})
 
-%output data to tecplot
-tenseg_tecplot(C,n_t,t_t,interp1([min(radius),max(radius)],[0.2,0.8],radius));
