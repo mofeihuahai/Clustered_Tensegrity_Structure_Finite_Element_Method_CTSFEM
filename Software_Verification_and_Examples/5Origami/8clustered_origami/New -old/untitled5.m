@@ -141,8 +141,9 @@ D=[diag(E_p/(1-mu^2)),diag(mu*E_p/(1-mu^2)),zeros(np,np);diag(mu*E_p/(1-mu^2)),d
 % l0_l=12.9*ones(npl,1);
 % Delta_l_l=l_l-l0_l;
 
-Delta_l_l=0*ones(npl,1);
-l0_l=l_l-Delta_l_l;
+% Delta_l_l=0*ones(npl,1);
+% l0_l=l_l-Delta_l_l;
+l0_l=sqrt(sum((reshape(N,3,[])*C_l').^2))';  % rest length
 
 tic;
 
