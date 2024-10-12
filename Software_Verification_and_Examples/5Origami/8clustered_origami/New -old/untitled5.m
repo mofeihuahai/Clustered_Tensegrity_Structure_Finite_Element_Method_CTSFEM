@@ -128,7 +128,7 @@ S_tc=Gp_tc';                      % clustering matrix as group matrix(for truss)
 %Calculate equilibrium matrix and member length
 [A_2t,A_2ta,A_2tc,A_2tac,A_2l,A_2la,l_t,l_tc,l_l,l,l_c]=tenseg_equilibrium_matrix_truss_lines(N,C,C_t,C_l,S,S_tc,Ia);
 for i=1:np
-A_2p_i{i}=kron(eye(3),R)*kron(cell2mat(C_pn_i(i)),eye(3))*A_2l*cell2mat(C_pl_bar_i(i))';
+A_2p_i{i}=kron(eye(3),R')*kron(cell2mat(C_pn_i(i)),eye(3))*A_2l*cell2mat(C_pl_bar_i(i))';
 B_lp_i{i}=A_2p_i{i}';
 B_epsilon_i{i}=[cell2mat(B_lp_i(i))*kron(eye(3),[1,0,0;0,0,0;0,0,0])*cell2mat(n_pn_i_local(i)),cell2mat(B_lp_i(i))*kron(eye(3),[0,0,0;0,1,0;0,0,0])*cell2mat(n_pn_i_local(i)),cell2mat(B_lp_i(i))*kron(eye(3),[0,0,0;1,0,0;0,0,0])*cell2mat(n_pn_i_local(i))];
 end
@@ -202,7 +202,7 @@ toc
 
 %     H=1/2*delta*[P1'*X1,P2'*X1;P1'*X2,P2'*X2];
 
-    H=R*1/(2*delta)*[P1'*X1,P2'*X1,0;P1'*X2,P2'*X2,0;P1'*X3,P2'*X3,0]*R';
+    H=1/(2*delta)*[P1'*X1,P2'*X1,0;P1'*X2,P2'*X2,0;P1'*X3,P2'*X3,0];
     
     E=0.5*(H+H'+H'*H);
 
@@ -210,8 +210,12 @@ toc
 %     E1=[E(1,1),E(2,2),E(3,3),2*E(1,2),2*E(2,3),2*E(3,1)]';
 
     toc
+ 
+    epsilon
+    E1
+
     T1=D*E1;
-    
+     
 
 
 
