@@ -47,7 +47,7 @@ period=0.5;             %period of seismic
 %% N C of the structure
 % Manually specify node positions of double layer prism.
 % N=[0 0 0;1 1 0;2 0 0;1 -1 0]';
-alpha=90;beta=10;gamma=13;         %对应x,y,z轴的角度
+alpha=0;beta=0;gamma=0;         %对应x,y,z轴的角度
 R=[cos(alpha)*cos(beta),cos(alpha)*sin(beta)*sin(gamma)-sin(alpha)*cos(gamma),cos(alpha)*sin(beta)*cos(gamma)+sin(alpha)*sin(gamma);
    sin(alpha)*cos(beta),sin(alpha)*sin(beta)*sin(gamma)+cos(alpha)*cos(gamma),sin(alpha)*sin(beta)*cos(gamma)-cos(alpha)*sin(gamma);
    -sin(beta),cos(beta)*sin(gamma),cos(beta)*cos(gamma)];   %转换矩阵

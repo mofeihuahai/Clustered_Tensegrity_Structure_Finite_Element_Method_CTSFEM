@@ -26,8 +26,8 @@ c_b=0.1;           % coefficient of safty of bars 0.5
 c_s=0.1;           % coefficient of safty of strings 0.3
 
 % static analysis set
-substep_1=1;
-substep=1;                                     %荷载子步
+substep_1=100;
+substep=100;                                     %荷载子步
 lumped=0;               % use lumped matrix 1-yes,0-no
 saveimg=0;              % save image or not (1) yes (0)no
 savedata=0;             % save data or not (1) yes (0)no
@@ -47,16 +47,50 @@ period=0.5;             %period of seismic
 %% N C of the structure
 % Manually specify node positions of double layer prism.
 % N=[0 0 0;1 1 0;2 0 0;1 -1 0]';
-alpha=pi/4;beta=0;gamma=0;         %对应z,y,x轴的角度
+alpha=pi/2;beta=0;gamma=0;         %对应z,y,x轴的角度
 R=[cos(alpha)*cos(beta),cos(alpha)*sin(beta)*sin(gamma)-sin(alpha)*cos(gamma),cos(alpha)*sin(beta)*cos(gamma)+sin(alpha)*sin(gamma);
    sin(alpha)*cos(beta),sin(alpha)*sin(beta)*sin(gamma)+cos(alpha)*cos(gamma),sin(alpha)*sin(beta)*cos(gamma)-cos(alpha)*sin(gamma);
    -sin(beta),cos(beta)*sin(gamma),cos(beta)*cos(gamma)];   %转换矩阵
 
 P_org=[0;0;0];  %局部坐标到整体坐标的距离
 width=0.1;
-N=[1,-1,0;0,0,sqrt(3);0,0,0];       %nodal coordinate
+r=2/3; h=30; p=3; f=3;       % radius; height; number of edge;三角形边长划分数量
 
-C_l_in = [1,2;2,3;3,1];  %bar
+beta=180*(0.5-1/p); 	% rotation angle
+for i=1:p               % nodal coordinate matrix N
+    N_initial(:,i)=3*r*[cos(2*pi*(i-1)/p),sin(2*pi*(i-1)/p),0];
+end
+
+a=1;
+b=2;    %需要划分三角形的三个节点位置
+c=3;
+
+N_f=N_initial([1 2 3],[a b c]); %需要划分三角形的三个节点坐标
+N_new=membrane_f2(N_f,f);  %划分后行的节点坐标
+N=[N_initial,N_new];
+
+%自动选取对应节点连接panel lines      
+C_l_in=[];
+for i=1:(f-1)
+    C_l_in_j=zeros(3*i,2); 
+    for j=1:i 
+        C_l_in_j(1+3*(j-1):(3*j),:)=[j+(1+(i-1))*(i-1)/2,j+(1+(i-1))*(i-1)/2+i;j+(1+(i-1))*(i-1)/2+i,j+(1+(i-1))*(i-1)/2+i+1;j+(1+(i-1))*(i-1)/2,j+(1+(i-1))*(i-1)/2+(i+1)];
+    end 
+    C_l_in = [C_l_in;C_l_in_j];    
+end
+
+C_l_in(C_l_in==1)=a;    %将4节点与划分节点的第一个位置调换
+
+C_l_in(C_l_in==2)=-1;    %-1是一个不会出现的数，只是用来替换，无实际意义
+C_l_in(C_l_in==(1+(1+(f-1))*(f-1)/2))=b;      %将底部第一个节点与划分节点的第二个位置调换
+C_l_in(C_l_in==-1)=(1+(1+(f-1))*(f-1)/2);        
+C_l_in(C_l_in==3)=-2;    %-2是一个不会出现的数，只是用来替换，无实际意义
+C_l_in(C_l_in==(1+f)*f/2)=c;              %将底部第二个节点与划分节点的第三个位置调换
+C_l_in(C_l_in==-2)=(1+f)*f/2;
+
+
+
+
 C_s_in = [];  %string
 C_t_in = [C_s_in];  % truss
 
@@ -76,7 +110,25 @@ tenseg_plot_membrane(N,C_b,C_s,C_l);
 
 %% connectivity of triangle element Ca
 % Ca can be written in a function!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-Ca=[1;2;3];
+
+Ca=[];
+for i=1:(f-1)
+    Ca_i=zeros(3,1+2*(i-1));
+    Ca_i(1,:)=floor(linspace(1+(1+(i-1))*(i-1)/2,1+(1+(i-1))*(i-1)/2+(i-1),1+2*(i-1))); %先确定两个端点然后中间的数向下取整
+    Ca_i(2,:)=ceil(linspace(1+(1+i)*i/2,1+(1+i)*i/2+(i-1),1+2*(i-1)));                  %先确定两个端点然后中间的数向上取整
+    Ca_i(3,1:2:end)=Ca_i(2,1:2:end)+1;      %选取第三行的奇数列，用第二行的奇数列+1赋值
+    Ca_i(3,2:2:end)=Ca_i(2,2:2:end)-i;      %选取第三行的偶数列，用第二行的偶数列+i赋值
+    Ca=[Ca,Ca_i];
+end
+
+Ca(Ca==1)=a;    %将4节点与划分节点的第一个位置调换
+
+Ca(Ca==2)=-1;    %-1是一个不会出现的数，只是用来替换
+Ca(Ca==(1+(1+(f-1))*(f-1)/2))=b;      %将底部第一个节点与划分节点的第二个位置调换
+Ca(Ca==-1)=(1+(1+(f-1))*(f-1)/2);        
+Ca(Ca==3)=-2;    %-2是一个不会出现的数，只是用来替换
+Ca(Ca==(1+f)*f/2)=c;              %将底部第二个节点与划分节点的第三个位置调换
+Ca(Ca==-2)=(1+f)*f/2;
 
 % Ca=generate_Ca(C_in,N);
 % Ca=zeros(3,1)
@@ -89,20 +141,27 @@ tenseg_plot_ori_membrane(N,C_b,C_s,C_l,[],[],[],[],[],[],[],Ca);
  pinned_X=[]'; pinned_Y=[]'; pinned_Z=[1,2,3]';
 [Ia,Ib,a,b]=tenseg_boundary(pinned_X,pinned_Y,pinned_Z,nn);
 %% C_pl_bar
-
- C_pl=[1,2,3];
-
+ C_pl=zeros(np,3);  %Cpl
+ C_pl=[];
+for i=1:(f-1)
+    C_pl_i=zeros(1+2*(i-1),3);
+    C_pl_i(1,:)=[1+3*(1+(i-1))*(i-1)/2,2+3*(1+(i-1))*(i-1)/2,3+3*(1+(i-1))*(i-1)/2]; %先确定矩阵的第一行
+    for j=1:(i-1)
+    C_pl_i(2*j,1)=C_pl_i(2*j-1,1)-(2+3*(i-2));  %偶数行的第一项的等于奇数行减去(2+3*(i-2))
+    C_pl_i(2*j,2:3)=C_pl_i(2*j-1,2:3)+1;        %偶数行的第二三项的等于奇数行加1
+    C_pl_i(2*j+1,1)=C_pl_i(2*j,1)+(2+3*(i-1));  %奇数行的第一项的等于偶数行加上(2+3*(i-1))
+    C_pl_i(2*j+1,2:3)=C_pl_i(2*j,2:3)+2;        %奇数行的第二三项的等于偶数行加2
+    end
+    C_pl=[C_pl;C_pl_i];
+end
  [C_pl_bar,C_pl_bar_i]=tenseg_ind2C_bar(C_pl,C_l,Ca);
+
 
 %%  不考虑节点顺序的连接关系矩阵
 C_pn=Ca';
 
 [ C_pn_bar,n_pn_i, n_pn_i_local,C_pn_i] = tenseg_ind2C_membrane( C_pn,N,R,P_org );
 % [C_pn_bar,n_pn_i,C_pn_i]=tenseg_ind2C_membrane(Ca,N);  
-
-n_pn_i_local_1=cell2mat(n_pn_i_local);
-N1=reshape(n_pn_i_local_1,3,3);
-tenseg_plot_membrane(N1,C_b,C_s,C_l);
 
 %% 板的质量
 rho_p=0.1;                  % density of panel
@@ -145,74 +204,7 @@ D=[diag(E_p/(1-mu^2)),diag(mu*E_p/(1-mu^2)),zeros(np,np);diag(mu*E_p/(1-mu^2)),d
 % l0_l=l_l-Delta_l_l;
 l0_l=sqrt(sum((reshape(N,3,[])*C_l').^2))';  % rest length
 
-deltal2epsilon=(B_epsilon)\C_pl_bar;
-
-
-tic;
-X=N+[0.01,0,0;0.01,0,0;0.02,0,0];
-l_l=sqrt(sum((X*C_l').^2))';  % elements' length of panel lines
 Delta_l_l=l_l-l0_l;
-epsilon=deltal2epsilon*Delta_l_l;
-
-toc
-
-% 
-%     ind_du=[1]; du=[-0.1];
-%     U=zeros(size(N(:))); 
-%     du_it=zeros(size(U));
-%     du_it(ind_du)=du;
-%     du_t=du_it*linspace(0,1,substep);
-%     U_t=du_t+U*linspace(1,1,substep);
-% 
-%     U=U_t(:,1);
-
-%     n=N(:);
-   
-    n_pn_i_local_1=cell2mat(n_pn_i_local);
-
-    xi=n_pn_i_local_1(1,:);
-    yi=n_pn_i_local_1(2,:);
-    xj=n_pn_i_local_1(4,:);
-    yj=n_pn_i_local_1(5,:);
-    xk=n_pn_i_local_1(7,:);
-    yk=n_pn_i_local_1(8,:);
-
-    delta=0.5*(xj*yk-xk*yj-xi*yk+xk*yi+xi*yj-xj*yi);
-
-    P1=[yj-yk;yk-yi;yi-yj];
-    P2=[xk-xj;xi-xk;xj-xi];
-    P3=[0;0;0];   
-
-    tic;
-   
-    U_1=[0.01,0.01,0.02,0,0,0,0,0,0]';
-    U_local=kron(eye(3),R')*U_1;
-
-    X1=U_local(1:3:end,:);
-    X2=U_local(2:3:end,:);
-    X3=U_local(3:3:end,:);
-
-    H=1/(2*delta)*[P1'*X1,P2'*X1,0;P1'*X2,P2'*X2,0;P1'*X3,P2'*X3,0];
-    
-    E=0.5*(H+H'+H'*H);
-
-    E1=[E(1,1),E(2,2),2*E(1,2)]';
-
-    toc
- 
-    epsilon
-    E1
-
-    T1=D*E1;
-
-     
-
-
-
-
-
-
-%%
 
 
 pVp_pn=A_2l*(inv(B_epsilon)*C_pl_bar)'*D*kron((diag(A_p)*diag(t_p)),eye(3))*inv(B_epsilon)*C_pl_bar*Delta_l_l;  %partial_Vp/partial_n
@@ -223,15 +215,18 @@ E_t=2.06e11*ones(nt,1);    % Young's modulus of truss
 A_t=1e-6*ones(nt,1);    % area of truss
 
 % l0_t=30*ones(nt,1);
+
 l0_t=[0];
-l0_tc=S_tc*l0_t;
+% l0_tc=S_tc*l0_t;
+l0_tc=[0];
+
 
 E_tc=pinv(S_tc')*E_t;   % Young's modulus of truss
 A_tc=pinv(S_tc')*A_t;    % area of truss
 
 
 l0=[l0_l;l0_t];
-l0_c=S*l0;
+% l0_c=S*l0;
 % Delta_l_t=l_t-l0_t;
 Delta_l_tc=l_tc-l0_tc;
 
@@ -338,14 +333,15 @@ Cd=1e-5*eye(3*nn,3*nn);
 %% external force, forced motion of nodes, shrink of strings
 % calculate external force and 
 ind_w=[];w=[];   %external force in Z 
-ind_dnb=[]; dnb0=[];
-ind_dl0_tc=[1]; dl0_tc=[-9];
+ind_dnb=[1]'; dnb0=[0.01]';
+ind_dl0_tc=[]; dl0_tc=[];
 ind_dl0_l=[];dl0_l=[];
 % ind_theta_0=[]; dtheta_0=[];        % initial angel change with time
 p=1;  %加载次数
 substep = substep*p;
 % [w_t,dnb_t,l0_ct,Ia_new,Ib_new]=tenseg_load_prestress(substep,ind_w,w,ind_dnb,dnb0,ind_dl0_c,dl0_c,l0_c,b,gravity,[0;9.8;0],C,mass);
-[w_t,dnb_t,l0_tc_t,l0_l_t,Ia,Ib]=tenseg_load_prestress_membrane(substep,substep_1,ind_w,w,ind_dnb,dnb0,ind_dl0_tc,dl0_tc,ind_dl0_l,dl0_l,l0_tc,l0_l,b,gravity,[0;0;9.8],C,M,p);
+[w_t,dnb_t,l0_tc_t,l0_l_t,Ia,Ib]=tenseg_load_prestress_membrane_time(substep,ind_w,w,ind_dnb,dnb0,ind_dl0_tc,dl0_tc,l0_tc,ind_dl0_l,dl0_l,l0_l,b,gravity,[0;0;9.8],C,M_p);
+
 
 %% Step1: statics: equilibrium calculation
 % input data
@@ -371,15 +367,16 @@ data_out1=static_solver_CTS_membrane_time(data);
 
 % t_t=data_out1.t_out;          %member force in every step
 n_t=data_out1.n_out;          %nodal coordinate in every step
+epsilon=data_out1.epsilon_out;
 sigma_l=data_out1.sigma_l_out;    %sigma_l
-t_tc=data_out1.t_tc_out;        %t_tc
+% t_tc=data_out1.t_tc_out;        %t_tc
 N_out=data_out1.N_out;
 
 toc=data_out1.toc;
 
-c=sum(toc);
+c=cumsum(toc);
 
-tenseg_plot_result(1:substep,toc,{'计算时间'},{'Substep','time(s)'},'plot_member_force.png',saveimg);
+tenseg_plot_result(1:substep,c,{'计算时间'},{'Substep','time(s)'},'plot_member_force.png',saveimg);
 grid on;
 
 %% plot member force 

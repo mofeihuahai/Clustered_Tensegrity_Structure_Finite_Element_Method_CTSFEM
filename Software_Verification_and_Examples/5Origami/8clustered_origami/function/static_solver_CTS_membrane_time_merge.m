@@ -1,11 +1,11 @@
-function data_out=static_solver_CTS_membrane_tl(data)
+function data_out=static_solver_CTS_membrane_time_merge(data)
 %solve nonlinear equilibrium equations using modified Newton method
 %converge to stable equilibrium, considering substep, for CTS( including
 %TTS)
 
-global E Ia Ib C S w ne Xb Xa dXa l_l_int l_tc_int C_t C_l  S_tc B_epsilon C_pl_bar A_p t_p E_tc A_tc l0_tc l0_l D
+global E Ia Ib C S w ne Xb Xa dXa l_l_int l_tc_int C_t C_l  S_tc B_epsilon C_pl_bar A_p t_p  l0_l D
 % minimize total energy? (1: use, 0: not use) it's time consuming
-% use_energy=1;
+use_energy=0;
 
 %% input data
 C=data.C;
@@ -77,36 +77,41 @@ data_out.E_out=E_p*ones(1,substep);
 
 
 %% calculate equilibrium
-X=X0;               %initialize configuration
-Xb0=Ib'*X;           %pinned node
-E=E_p;
+X_a=X0;               %initialize configuration
+X_b=X0;               %initialize configuration
+Xb0=Ib'*X_a;           %pinned node
+Xb0=Ib'*X_b;           %pinned node
+
+% E=E_p;
 % lamda=linspace(0,1,substep);    %coefficient for substep
 num_slack=ne*zeros(substep+1,1);    %num of string slack
-Xa=Ia'*X;
-cont=2;
- u=1e-1;
+Xa=Ia'*X_a;
+Xa=Ia'*X_b;
+% cont=2;
+%  u=1e-1;
 
- sigma_end=zeros(3,1);
  
-E_tc=pinv(S_tc')*E_t;   % Young's modulus of truss
-A_tc=pinv(S_tc')*A_t;    % area of truss
+% E_tc=pinv(S_tc')*E_t;   % Young's modulus of truss
+% A_tc=pinv(S_tc')*A_t;    % area of truss
 for k=1:substep
     w=w_t(:,k);               %external force
-    Xb=Xb0+dXb_t(:,k);         %forced node displacement
+    Xb1=Xb0+dXb_t(:,k);         %创新方法改变节点n
+    Xb=Xb0+dXb_t(:,1);          %传统方法改变u，所以这里Xb不变
 %     l0_tc=l0_tc_t(:,k);         %forced enlongation of string
-%     l0_l=l0_l_t(:,k);         %forced enlongation of string
+    l0_l=l0_l_t(:,k);         %forced enlongation of string
     U=U_t(:,k);
 
     disp(k);
     E1_end=[];  
 
     tic;
-    X=[Ia';Ib']\[Xa;Xb];
-    X=X+U;
+    X_a0=[Ia';Ib']\[Xa;Xb];
+    X_a=X_a0+U;
     
+
     for i=1:np
 
-    X_pn_i{i}=kron(cell2mat(C_pn_i(i)),eye(3))*X; 
+    X_pn_i{i}=kron(cell2mat(C_pn_i(i)),eye(3))*X_a0; 
 
     X_local_i{i}=kron(eye(3),R')*X_pn_i{i};
     
@@ -146,8 +151,20 @@ for k=1:substep
     T1=D*E1_end;
 
     toc
+    time_a=sum(toc);
 
+%     disp(k);
+%     X=[Ia';Ib']\[Xa;Xb];
 % 
+%     l_t=sqrt(sum((reshape(X,3,[])*C_t').^2))';  % elements' length of truss
+%     l_tc=S_tc*l_t;
+%     l_l=sqrt(sum((reshape(X,3,[])*C_l').^2))';  % elements' length of panel lines
+% 
+% 
+%     l_l_int=l_l; 
+%     l_tc_int=l_tc; 
+% %     f_int=t;
+%     
 %     for i=1:1e3
 %         X=[Ia';Ib']\[Xa;Xb];
 %        
@@ -158,6 +175,7 @@ for k=1:substep
 %         H_t=reshape(X,3,[])*C_t';
 %         H_l=reshape(X,3,[])*C_l';
 %         Delta_l_l=l_l-l0_l;
+% 
 %         Delta_l_tc=l_tc-l0_tc;
 % 
 %         Cell_H_t=mat2cell(H_t,3,ones(1,size(H_t,2)));          % transfer matrix H into a cell: Cell_H
@@ -167,12 +185,16 @@ for k=1:substep
 %         A_2t=kron(C_t',eye(3))*blkdiag(Cell_H_t{:})*diag(l_t.^-1);
 %         A_2tc=A_2t*S_tc';
 %         A_2l=kron(C_l',eye(3))*blkdiag(Cell_H_l{:})*diag(l_l.^-1);
-%         sigma_l=D*inv(B_epsilon)*C_pl_bar*Delta_l_l;
 %         
-%         
-% 
-%         sigma=0.5*det(A).^-1*A*D*(H+H'+H'*H)*A';
-% 
+% % %         t=cputime;
+% %         tic;
+% %         X=[Ia';Ib']\[Xa;Xb];
+% %         l_l=sqrt(sum((reshape(X,3,[])*C_l').^2))';  % elements' length of panel lines
+% %         Delta_l_l=l_l-l0_l;
+% %         sigma_l=D/(B_epsilon)*C_pl_bar*Delta_l_l;
+% %         toc
+% % %         e=cputime-t;
+% %           elapsedTime = toc;
 % 
 %         t_tc=diag(E_tc)*diag(A_tc)*diag(l0_tc.^-1)*Delta_l_tc;
 %         t_l=(inv(B_epsilon)*C_pl_bar)'*D*kron((diag(A_p)*diag(t_p)),eye(3))*inv(B_epsilon)*C_pl_bar*Delta_l_l;
@@ -279,22 +301,45 @@ for k=1:substep
     
     
     %% output data
-    
-    data_out.N_out{k}=reshape(X,3,[]);
-    data_out.toc(:,k)=toc;
-    data_out.n_out(:,k)=X;
-    
+    %         t=cputime;
+
+    deltal2epsilon=(B_epsilon)\C_pl_bar;
+       tic;
+        X_b=[Ia';Ib']\[Xa;Xb1];
+        l_l=sqrt(sum((reshape(X_b,3,[])*C_l').^2))';  % elements' length of panel lines
+        Delta_l_l=l_l-l0_l;
+        epsilon=deltal2epsilon*Delta_l_l;
+        
+        toc
+
+        time_b=sum(toc);
+
+        sigma_l=D*epsilon;
+%         e=cputime-t;
+
+    data_out.N_a_out{k}=reshape(X_a,3,[]);
+    data_out.N_b_out{k}=reshape(X_b,3,[]);
+
+    data_out.n_a_out(:,k)=X_a;
+    data_out.n_b_out(:,k)=X_b;
+    data_out.time_a(:,k)=time_a;
+    data_out.time_b(:,k)=time_b;
+   
+     
+
     %     data_out.l_out(:,k)=l;
     %     data_out.q_out(:,k)=q;
     %     data_out.E_out(:,k)=E;
+    data_out.epsilon_out(:,k)=epsilon; 
+    data_out.sigma_l_out(:,k)=sigma_l;     %sigma_l
     data_out.E1_end_out(:,k)=E1_end;
-    data_out.T1_out(:,k)=T1;     %sigma_l
+    data_out.T1_out(:,k)=T1;     %sigma_l 
 %     data_out.t_tc_out(:,k)=t_tc;      %member force
     % data_out.V{k}=energy_cal(data_out);
 %     data_out.Fpn_out(k)=norm(Ia'*Fp);
 end
-
-data_out.N=reshape(X,3,[]);
+data_out.E=E;
+% data_out.N=reshape(X,3,[]);
 
 
 

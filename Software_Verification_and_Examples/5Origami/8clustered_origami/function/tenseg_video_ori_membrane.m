@@ -45,7 +45,7 @@ if savevideo==1
         view(30,30);
         set(gcf,'color','w');
         axis(axislim)
-           axis off
+%            axis off
         tenseg_savegif_forever(name);
         hold off;
     end
