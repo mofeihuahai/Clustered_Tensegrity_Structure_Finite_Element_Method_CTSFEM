@@ -1,4 +1,4 @@
-function data_out=static_solver_CTS_membrane(data)
+function data_out=static_solver_CTS_membrane_time(data)
 %solve nonlinear equilibrium equations using modified Newton method
 %converge to stable equilibrium, considering substep, for CTS( including
 %TTS)
@@ -88,100 +88,100 @@ for k=1:substep
     l0_tc=l0_tc_t(:,k);         %forced enlongation of string
     l0_l=l0_l_t(:,k);         %forced enlongation of string
 
-    disp(k);
-    X=[Ia';Ib']\[Xa;Xb];
-
-    l_t=sqrt(sum((reshape(X,3,[])*C_t').^2))';  % elements' length of truss
-    l_tc=S_tc*l_t;
-    l_l=sqrt(sum((reshape(X,3,[])*C_l').^2))';  % elements' length of panel lines
-
-
-    l_l_int=l_l; 
-    l_tc_int=l_tc; 
-%     f_int=t;
-    
-    for i=1:1e3
-        X=[Ia';Ib']\[Xa;Xb];
-       
-        l_t=sqrt(sum((reshape(X,3,[])*C_t').^2))';  % elements' length of truss
-        l_tc=S_tc*l_t;
-        l_l=sqrt(sum((reshape(X,3,[])*C_l').^2))';  % elements' length of panel lines
-    
-        H_t=reshape(X,3,[])*C_t';
-        H_l=reshape(X,3,[])*C_l';
-        Delta_l_l=l_l-l0_l;
-
-        Delta_l_tc=l_tc-l0_tc;
-
-        Cell_H_t=mat2cell(H_t,3,ones(1,size(H_t,2)));          % transfer matrix H into a cell: Cell_H
-        Cell_H_l=mat2cell(H_l,3,ones(1,size(H_l,2)));          % transfer matrix H into a cell: Cell_H
-
-
-        A_2t=kron(C_t',eye(3))*blkdiag(Cell_H_t{:})*diag(l_t.^-1);
-        A_2tc=A_2t*S_tc';
-        A_2l=kron(C_l',eye(3))*blkdiag(Cell_H_l{:})*diag(l_l.^-1);
-        
-% %         t=cputime;
-%         tic;
+%     disp(k);
+%     X=[Ia';Ib']\[Xa;Xb];
+% 
+%     l_t=sqrt(sum((reshape(X,3,[])*C_t').^2))';  % elements' length of truss
+%     l_tc=S_tc*l_t;
+%     l_l=sqrt(sum((reshape(X,3,[])*C_l').^2))';  % elements' length of panel lines
+% 
+% 
+%     l_l_int=l_l; 
+%     l_tc_int=l_tc; 
+% %     f_int=t;
+%     
+%     for i=1:1e3
 %         X=[Ia';Ib']\[Xa;Xb];
+%        
+%         l_t=sqrt(sum((reshape(X,3,[])*C_t').^2))';  % elements' length of truss
+%         l_tc=S_tc*l_t;
 %         l_l=sqrt(sum((reshape(X,3,[])*C_l').^2))';  % elements' length of panel lines
+%     
+%         H_t=reshape(X,3,[])*C_t';
+%         H_l=reshape(X,3,[])*C_l';
 %         Delta_l_l=l_l-l0_l;
-%         sigma_l=D/(B_epsilon)*C_pl_bar*Delta_l_l;
-%         toc
-% %         e=cputime-t;
-%           elapsedTime = toc;
-
-        t_tc=diag(E_tc)*diag(A_tc)*diag(l0_tc.^-1)*Delta_l_tc;
-        t_l=(inv(B_epsilon)*C_pl_bar)'*D*kron((diag(A_p)*diag(t_p)),eye(3))*inv(B_epsilon)*C_pl_bar*Delta_l_l;
-        
-        
-        Fp=w-A_2tc*t_tc-A_2l*t_l;                                       %unbalanced force
-        Fp_a=Ia'*Fp;                                 %see the norm of unbalanced force
-        norm(Fp_a)
-        if norm(Fp_a)<1e-5
-            break
-        end
-       
-Ke_p=A_2l*(inv(B_epsilon)*C_pl_bar)'*D*kron((diag(A_p)*diag(t_p)),eye(3))*inv(B_epsilon)*C_pl_bar*A_2l';
-Kg_p=kron(C_l'*diag(l_l.^-1)*diag(t_l)*C_l,eye(3))-A_2l*diag(l_l.^-1)*diag(t_l)*A_2l';
-Kt_p=Ke_p+Kg_p;   %partial_2Vp/partial_n*partial_n'
-
-Ke_tc=A_2tc*diag(E_tc)*diag(A_tc)*diag(l0_tc.^-1)*A_2tc';
-Kg_tc=kron(C_t'*diag(l_t.^-1)*diag(S_tc'*t_tc)*C_t,eye(3))-A_2t*diag(l_t.^-1)*diag(S_tc'*t_tc)*A_2t';
-Kt_tc=Ke_tc+Kg_tc;   %partial_2Vt/partial_n*partial_n'
-
-K_t=Kt_p+Kt_tc;   %partial_2V/partial_n*partial_n'
-K_taa=Ia'*K_t*Ia;
-
-% A_2c=kron(C',eye(3))*blkdiag(Cell_H{:})*diag(l.^-1)*S';     % equilibrium matrix
-% K_t=K+A_2c*diag(E.*A./(l0.^-1))*A_2c';
-%         K_taa=Ia'*0.5*(K_t+K_t')*Ia;
-
-%         for j=1:ne
-%             Ki{j,1}=q_bar(j,j)*eye(3)+E(j)*A(j)*l(j)^(-3)*B(:,j)*B(:,j)';
+% 
+%         Delta_l_tc=l_tc-l0_tc;
+% 
+%         Cell_H_t=mat2cell(H_t,3,ones(1,size(H_t,2)));          % transfer matrix H into a cell: Cell_H
+%         Cell_H_l=mat2cell(H_l,3,ones(1,size(H_l,2)));          % transfer matrix H into a cell: Cell_H
+% 
+% 
+%         A_2t=kron(C_t',eye(3))*blkdiag(Cell_H_t{:})*diag(l_t.^-1);
+%         A_2tc=A_2t*S_tc';
+%         A_2l=kron(C_l',eye(3))*blkdiag(Cell_H_l{:})*diag(l_l.^-1);
+%         
+% % %         t=cputime;
+% %         tic;
+% %         X=[Ia';Ib']\[Xa;Xb];
+% %         l_l=sqrt(sum((reshape(X,3,[])*C_l').^2))';  % elements' length of panel lines
+% %         Delta_l_l=l_l-l0_l;
+% %         sigma_l=D/(B_epsilon)*C_pl_bar*Delta_l_l;
+% %         toc
+% % %         e=cputime-t;
+% %           elapsedTime = toc;
+% 
+%         t_tc=diag(E_tc)*diag(A_tc)*diag(l0_tc.^-1)*Delta_l_tc;
+%         t_l=(inv(B_epsilon)*C_pl_bar)'*D*kron((diag(A_p)*diag(t_p)),eye(3))*inv(B_epsilon)*C_pl_bar*Delta_l_l;
+%         
+%         
+%         Fp=w-A_2tc*t_tc-A_2l*t_l;                                       %unbalanced force
+%         Fp_a=Ia'*Fp;                                 %see the norm of unbalanced force
+%         norm(Fp_a)
+%         if norm(Fp_a)<1e-5
+%             break
 %         end
-%         K_t=kron(C',eye(3))*blkdiag(Ki{:})*kron(C,eye(3));
-
-        
-        %modify the stiffness matrix
-        [V_mode,D1]=eig(K_taa);                       %刚度矩阵特征根
-        d=diag(D1);                            %eigen value
-        lmd=min(d);                     %刚度矩阵最小特征根
-        if lmd>0
-            Km=K_taa+u*eye(size(K_taa)); %修正的刚度矩阵
-        else
-            Km=K_taa+(abs(lmd)+u)*eye(size(K_taa));
-        end
-        dXa=Km\Fp_a;
-%          dXa=(lmd*eye(size(Km)))\Fp_a;
-        x=1;
-        % line search
-        if use_energy==1
-            opt=optimset('TolX',1e-5);
-            [x,V]=fminbnd(@energy_membrane,0,1e1,opt);
-        end
-        Xa=Xa+x*dXa;
-    end
+%        
+% Ke_p=A_2l*(inv(B_epsilon)*C_pl_bar)'*D*kron((diag(A_p)*diag(t_p)),eye(3))*inv(B_epsilon)*C_pl_bar*A_2l';
+% Kg_p=kron(C_l'*diag(l_l.^-1)*diag(t_l)*C_l,eye(3))-A_2l*diag(l_l.^-1)*diag(t_l)*A_2l';
+% Kt_p=Ke_p+Kg_p;   %partial_2Vp/partial_n*partial_n'
+% 
+% Ke_tc=A_2tc*diag(E_tc)*diag(A_tc)*diag(l0_tc.^-1)*A_2tc';
+% Kg_tc=kron(C_t'*diag(l_t.^-1)*diag(S_tc'*t_tc)*C_t,eye(3))-A_2t*diag(l_t.^-1)*diag(S_tc'*t_tc)*A_2t';
+% Kt_tc=Ke_tc+Kg_tc;   %partial_2Vt/partial_n*partial_n'
+% 
+% K_t=Kt_p+Kt_tc;   %partial_2V/partial_n*partial_n'
+% K_taa=Ia'*K_t*Ia;
+% 
+% % A_2c=kron(C',eye(3))*blkdiag(Cell_H{:})*diag(l.^-1)*S';     % equilibrium matrix
+% % K_t=K+A_2c*diag(E.*A./(l0.^-1))*A_2c';
+% %         K_taa=Ia'*0.5*(K_t+K_t')*Ia;
+% 
+% %         for j=1:ne
+% %             Ki{j,1}=q_bar(j,j)*eye(3)+E(j)*A(j)*l(j)^(-3)*B(:,j)*B(:,j)';
+% %         end
+% %         K_t=kron(C',eye(3))*blkdiag(Ki{:})*kron(C,eye(3));
+% 
+%         
+%         %modify the stiffness matrix
+%         [V_mode,D1]=eig(K_taa);                       %刚度矩阵特征根
+%         d=diag(D1);                            %eigen value
+%         lmd=min(d);                     %刚度矩阵最小特征根
+%         if lmd>0
+%             Km=K_taa+u*eye(size(K_taa)); %修正的刚度矩阵
+%         else
+%             Km=K_taa+(abs(lmd)+u)*eye(size(K_taa));
+%         end
+%         dXa=Km\Fp_a;
+% %          dXa=(lmd*eye(size(Km)))\Fp_a;
+%         x=1;
+%         % line search
+%         if use_energy==1
+%             opt=optimset('TolX',1e-5);
+%             [x,V]=fminbnd(@energy_membrane,0,1e1,opt);
+%         end
+%         Xa=Xa+x*dXa;
+%     end
     %
     %     % change youngs mudulus if string slack
     %     strain=(l-l0)./l0;        %strain of member
@@ -237,12 +237,16 @@ K_taa=Ia'*K_t*Ia;
     
     %% output data
     %         t=cputime;
-        tic;
+
+    deltal2epsilon=(B_epsilon)\C_pl_bar;
+       tic;
         X=[Ia';Ib']\[Xa;Xb];
         l_l=sqrt(sum((reshape(X,3,[])*C_l').^2))';  % elements' length of panel lines
         Delta_l_l=l_l-l0_l;
-        sigma_l=D/(B_epsilon)*C_pl_bar*Delta_l_l;
+        epsilon=deltal2epsilon*Delta_l_l;
+        
         toc
+        sigma_l=D*epsilon;
 %         e=cputime-t;
 
     data_out.N_out{k}=reshape(X,3,[]);
@@ -251,10 +255,11 @@ K_taa=Ia'*K_t*Ia;
     %     data_out.l_out(:,k)=l;
     %     data_out.q_out(:,k)=q;
     %     data_out.E_out(:,k)=E;
+    data_out.epsilon_out(:,k)=epsilon; 
     data_out.sigma_l_out(:,k)=sigma_l;     %sigma_l
-    data_out.t_tc_out(:,k)=t_tc;      %member force
+%     data_out.t_tc_out(:,k)=t_tc;      %member force
     % data_out.V{k}=energy_cal(data_out);
-    data_out.Fpn_out(k)=norm(Ia'*Fp);
+%     data_out.Fpn_out(k)=norm(Ia'*Fp);
 end
 data_out.E=E;
 data_out.N=reshape(X,3,[]);
