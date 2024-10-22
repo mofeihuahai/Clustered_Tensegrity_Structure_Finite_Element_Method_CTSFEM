@@ -45,7 +45,7 @@ period=0.5;             %period of seismic
 
 %% N C of the structure
 % Manually specify node positions of double layer prism.
-R=1; h=1; p=3;        % radius; height; number of edge
+R=1; h=1; p=4;        % radius; height; number of edge
 beta=180*(0.5-1/p); 	% rotation angle
 for i=1:p               % nodal coordinate matrix N
     N(:,i)=R*[cos(2*pi*(i-1)/p),sin(2*pi*(i-1)/p),0];
@@ -55,8 +55,12 @@ for i=p+1:2*p
 end
 
 % Manually specify connectivity indices.
-C_s_in = [4 5;5 6;6 4;1 4;2 5;3 6];  % This is indicating that string connection
-C_b_in = [1 5;2 6;3 4];  % Similarly, this is saying bar 1 connects node 1 to node 2,
+% C_s_in = [4 5;5 6;6 4;1 4;2 5;3 6];  % This is indicating that string connection
+% C_b_in = [1 5;2 6;3 4];  % Similarly, this is saying bar 1 connects node 1 to node 2,
+
+C_s_in = [[p+1:2*p,1:p,1:p]',[p+2:2*p,p+1,p+1:2*p,2:p,1]'];  % This is indicating that string connection
+C_b_in = [[1:p]',[p+2:2*p,p+1]'];  % Similarly, this is saying bar 1 connects node 1 to node 2,
+
 
 % Convert the above matrices into full connectivity matrices.
 C_b = tenseg_ind2C(C_b_in,N);%%
@@ -66,11 +70,12 @@ C=[C_b;C_s];
 
 % Plot the structure to make sure it looks right
 tenseg_plot(N,C_b,C_s);
+
 title('prism');
 
 
 %% Boundary constraints
-pinned_X=[1:p]'; pinned_Y=[1:p]'; pinned_Z=(1:p)';
+pinned_X=[1]'; pinned_Y=[1,ceil(p/2)+1]'; pinned_Z=(1:p)';
 [Ia,Ib,a,b]=tenseg_boundary(pinned_X,pinned_Y,pinned_Z,nn);
 
 %% Group/Clustered information 
@@ -114,7 +119,8 @@ mass=S'*rho.*A.*l0;
 
 %% tangent stiffness matrix
 % [Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS(Ia,C,S,q,A_1a,E_c,A_c,l_c);
-[Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS2(Ia,C,q,A_2ac,E_c,A_c,l0_c);
+% [Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS2(Ia,C,q,A_2ac,E_c,A_c,l0_c);
+[Kt_aa,Kg_aa,Ke_aa,K_mode,k]=tenseg_stiff_CTS3(Ia,C,S,t_c,A_2a,E_c,A_c,l0,l);
 % plot the mode shape of tangent stiffness matrix
 num_plt=4:8;
 plot_mode(K_mode,k,N,Ia,C_b,C_s,l,'tangent stiffness matrix',...
@@ -174,7 +180,7 @@ N_out=data_out1.N_out;
 tenseg_plot_result(1:substep,t_t([1,2,3,5,6],:),{'1','2','3','5','6'},{'Load step','Force (N)'},'plot_member_force.png',saveimg);
 grid on;
 %% Plot nodal coordinate curve X Y
-tenseg_plot_result(1:substep,n_t([4*3-2:4*3],:),{'4X','4Y','4Z'},{'Substep','Coordinate (m)'},'plot_coordinate.png',saveimg);
+tenseg_plot_result(1:substep,n_t([5*3-2:5*3],:),{'5X','5Y','5Z'},{'Substep','Coordinate (m)'},'plot_coordinate.png',saveimg);
 grid on;
 %% Plot configuration
 for i=round(linspace(1,substep,3))
@@ -188,7 +194,7 @@ if savedata==1
     save (['cable_net_CTS_static','.mat']);
 end
 %% make video of the static
-name=['prism_static2'];
+name=['prism4_static2'];
 % tenseg_video(n_t,C_b,C_s,[],min(substep,50),name,savevideo,material{2})
 tenseg_video_CTS(n_t,C,[1,2,3],S,[],[],[],[],[],[],t_t,[],min(substep,50),tf,name,savevideo)
 
@@ -245,7 +251,7 @@ nd_t=data_out.nd_t;   %time history of nodal coordinate
 tenseg_plot_result(out_tspan,t_t([1:5],:),{'1','2','3','4','5'},{'Time (s)','Force (N)'},'plot_member_force.png',saveimg);
 grid on;
 %% Plot nodal coordinate curve X Y
-tenseg_plot_result(out_tspan,n_t([4*3-2:4*3],:),{'4X','4Y','4Z'},{'Time (s)','Coordinate (m)'},'plot_coordinate.png',saveimg);
+tenseg_plot_result(out_tspan,n_t([5*3-2:5*3],:),{'5X','5Y','5Z'},{'Time (s)','Coordinate (m)'},'plot_coordinate.png',saveimg);
 grid on;
 %% Plot final configuration
 % tenseg_plot_catenary( reshape(n_t(:,end),3,[]),C_b,C_s,[],[],[0,0],[],[],l0_ct(index_s,end))
@@ -256,9 +262,6 @@ if savedata==1
     save (['prism_dynamic',num2str(tf),'.mat']);
 end
 %% make video of the dynamic
-name=['prism_dynamic',num2str(tf)];
+name=['prism4_dynamic',num2str(tf)];
 % tenseg_video(n_t,C_b,C_s,[],min(numel(out_tspan),50),name,savevideo,material{2})
 tenseg_video_CTS(n_t,C,[1,2],S,[],[],[],[],[],[],t_t,[],min(numel(out_tspan),50),tf,name,savevideo)
-
-%output data to tecplot
-tenseg_tecplot(C,n_t,t_t,interp1([min(radius),max(radius)],[0.2,0.8],radius));
