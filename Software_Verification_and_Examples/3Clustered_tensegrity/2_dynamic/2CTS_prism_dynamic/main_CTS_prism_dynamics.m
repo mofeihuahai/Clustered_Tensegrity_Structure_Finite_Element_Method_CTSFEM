@@ -29,7 +29,7 @@ c_s=0.1;           % coefficient of safty of strings 0.3
 substep=20;                                     %ºÉÔØ×Ó²½
 lumped=0;               % use lumped matrix 1-yes,0-no
 saveimg=0;              % save image or not (1) yes (0)no
-savedata=0;             % save data or not (1) yes (0)no
+savedata=1;             % save data or not (1) yes (0)no
 savevideo=1;            % make video(1) or not(0)
 gravity=0;              % consider gravity 1 for yes, 0 for no
 % move_ground=0;          % for earthquake, use pinned nodes motion(1) or add inertia force in free node(0) 
@@ -37,7 +37,7 @@ gravity=0;              % consider gravity 1 for yes, 0 for no
 %dynamic analysis set
 dt=1e-4;               % time step in dynamic simulation
 auto_dt=0;              % use(1 or 0) auto time step, converengency is guaranteed if used
-tf=1;                   % final time of dynamic simulation
+tf=0.05;                   % final time of dynamic simulation
 out_dt=1e-3;            % output data interval(approximately, not exatly)
 
 amplitude=0;            % amplitude of external force of ground motion 
@@ -252,5 +252,5 @@ if savedata==1
 end
 %% make video of the dynamic
 name=['Tbar_dynamic_',num2str(tf)];
-% tenseg_video(n_t,C_b,C_s,[],min(numel(out_tspan),50),name,savevideo,material{2})
-tenseg_video_CTS(n_t,C,index_b,S,[],[],[],[],[],[],t_t,[],min(numel(out_tspan),50),tf,name,savevideo)
+tenseg_video(n_t,C_b,C_s,[],min(numel(out_tspan),50),name,savevideo,material{2})
+%tenseg_video_CTS(n_t,C,index_b,S,[],[],[],[],[],[],t_t,[],min(numel(out_tspan),50),tf,name,savevideo)
